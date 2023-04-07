@@ -4,4 +4,6 @@
 							  "Factory.cpp"
 							  "GamePieces/GamePiece.cpp"
 							  "GamePieces/Rook.cpp"
-							  "GamePieces/King.cpp")
+							  "GamePieces/King.cpp" 
+							  "GamePieces/Bishop.cpp" 
+							  "GamePieces/Queen.cpp")

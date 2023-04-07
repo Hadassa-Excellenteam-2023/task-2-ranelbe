@@ -38,6 +38,7 @@ struct Position {
 	}
 };
 
-
+const bool WHITE = true;
+const bool BLACK = false;
 const bool ON_CUR_PLAYER = true;
 const bool ON_OPPONENT = false;
