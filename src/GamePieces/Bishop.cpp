@@ -7,7 +7,7 @@ Bishop::Bishop(bool isWhite) :
 {
 }
 
-bool Bishop::isLegalMove(const Position& source, const Position& dest) const
+bool Bishop::isLegalMove(const Position& source, const Position& dest, bool /*OpponentDest*/) const
 {
     //move only diagonally
     return abs(dest.x - source.x) == abs(dest.y - source.y);

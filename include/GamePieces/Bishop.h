@@ -6,7 +6,7 @@ class Bishop : public GamePiece {
 
 public:
 	Bishop(bool isWhite);
-	bool isLegalMove(const Position& source, const Position& dest) const override;
+	bool isLegalMove(const Position& source, const Position& dest, bool OpponentDest) const override;
 
 private:
 	static bool m_registerit_white;

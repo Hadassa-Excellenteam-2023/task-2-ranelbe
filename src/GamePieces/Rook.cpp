@@ -7,7 +7,7 @@ Rook::Rook(bool isWhite) :
 {
 }
 
-bool Rook::isLegalMove(const Position& source, const Position& dest) const
+bool Rook::isLegalMove(const Position& source, const Position& dest, bool /*OpponentDest*/) const
 {
     // move only in straight lines
     return source.x == dest.x || source.y == dest.y;

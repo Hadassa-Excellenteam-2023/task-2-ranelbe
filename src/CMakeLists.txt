@@ -6,4 +6,6 @@
 							  "GamePieces/Rook.cpp"
 							  "GamePieces/King.cpp" 
 							  "GamePieces/Bishop.cpp" 
-							  "GamePieces/Queen.cpp")
+							  "GamePieces/Queen.cpp"
+							  "GamePieces/Knight.cpp" 
+							  "GamePieces/Pawn.cpp")

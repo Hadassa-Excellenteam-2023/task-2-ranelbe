@@ -7,7 +7,7 @@ Queen::Queen(bool isWhite) :
 {
 }
 
-bool Queen::isLegalMove(const Position& source, const Position& dest) const
+bool Queen::isLegalMove(const Position& source, const Position& dest, bool /*OpponentDest*/) const
 {
     // move stright or diagonally
     return (source.x == dest.x || source.y == dest.y) ||

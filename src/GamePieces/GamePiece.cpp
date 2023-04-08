@@ -2,8 +2,7 @@
 
 GamePiece::GamePiece(bool isWhite) :
 	m_color(isWhite),
-	m_position(Position(-1,-1)), //dummy
-	m_isAlive(true)
+	m_position(Position(-1,-1)) //dummy
 {
 }
 

@@ -1,15 +1,15 @@
 #pragma once
 #include "GamePieces/GamePiece.h"
 #include "macros.h"
+#include <optional>
 
-class Rook : public GamePiece {
+class Pawn : public GamePiece {
 
 public:
-	Rook(bool isWhite);
+	Pawn(bool isWhite);
 	bool isLegalMove(const Position& source, const Position& dest, bool OpponentDest) const override;
-
 private:
 	static bool m_registerit_white;
 	static bool m_registerit_black;
-
+	bool mutable m_isFirstMove = true;
 };

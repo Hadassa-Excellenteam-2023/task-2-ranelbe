@@ -7,7 +7,7 @@ King::King(bool isWhite) :
 {
 }
 
-bool King::isLegalMove(const Position& source, const Position& dest) const
+bool King::isLegalMove(const Position& source, const Position& dest, bool /*OpponentDest*/) const
 {
     // move only one spot in any direction
     return abs(dest.x - source.x) <= 1 && abs(dest.y - source.y) <= 1;
