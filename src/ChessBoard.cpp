@@ -38,12 +38,12 @@ int ChessBoard::execute(const string& res)
 	// extract the source and destination from the given input
 	Position source = { tolower(res[0]) - 'a', tolower(res[1]) - '1' };
 	Position dest = { tolower(res[2]) - 'a', tolower(res[3]) - '1' };
-	
+
 	if (isEmpty(source)) return 11;
 	else if (isPieceOfOpponent(source)) return 12;
 	else if (isPieceOfCurPlayer(dest)) return 13;
 	else if (!isLegalMove(source, dest)) return 21;
-	return movePiece(source, dest); 
+	return movePiece(source, dest);
 }
 
 /*
@@ -103,14 +103,14 @@ bool ChessBoard::isPathBlocked(const Position& source, const Position& dest) con
 	//movement is not straight or diagonal
 	if (dx != 0 && dy != 0 && dx != dy)
 		return false;
-	
+
 	// unit vector direction
-	Direction dir = { dx == 0 ? 0 : dx/abs(dx), dy == 0 ? 0 : dy/abs(dy) };
+	Direction dir = { dx == 0 ? 0 : dx / abs(dx), dy == 0 ? 0 : dy / abs(dy) };
 
 	// check if there is a piece between the source and the destination
 	Position curPos = source + dir;
 	while (curPos.x != dest.x || curPos.y != dest.y) {
-		if (!isEmpty(curPos)) 
+		if (!isEmpty(curPos))
 			return true;
 		curPos += dir;
 	}
@@ -119,7 +119,7 @@ bool ChessBoard::isPathBlocked(const Position& source, const Position& dest) con
 
 /*
 * check if the move caused check
-* @param onCurPlayer - check if the move caused check 
+* @param onCurPlayer - check if the move caused check
 *        on the current player or on the opponent
 * @return true if the move caused check
 */
@@ -135,9 +135,8 @@ bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 
 	// check if the king is in check
 	for (auto& pos : piecesPos) {
-		if (isLegalMove(pos, kingPos, onCurPlayer)) {
+		if (isLegalMove(pos, kingPos, onCurPlayer))
 			return true;
-		}
 	}
 	return false;
 }
@@ -150,11 +149,14 @@ bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 */
 int ChessBoard::movePiece(const Position& source, const Position& dest)
 {
+	// save the destination piece pointer
 	unique_ptr<GamePiece> destPtr = move(m_board[dest.x][dest.y]);
+
 	// move the piece
 	m_board[dest.x][dest.y] = move(m_board[source.x][source.y]);
 	m_board[source.x][source.y] = nullptr;
-	if (isMoveCausedCheck(ON_CUR_PLAYER)) { 
+
+	if (isMoveCausedCheck(ON_CUR_PLAYER)) {
 		// undo the move
 		m_board[source.x][source.y] = move(m_board[dest.x][dest.y]);
 		m_board[dest.x][dest.y] = move(destPtr);
@@ -174,8 +176,8 @@ vector<Position> ChessBoard::getPiecesPos(bool color) const
 	vector<Position> piecesPos;
 	for (int i = 0; i < BOARD_SIZE; ++i) {
 		for (int j = 0; j < BOARD_SIZE; ++j) {
-			if (!isEmpty({i, j}) && m_board[i][j]->getColor() == color)
-				piecesPos.push_back({i, j});
+			if (!isEmpty({ i, j }) && m_board[i][j]->getColor() == color)
+				piecesPos.push_back({ i, j });
 		}
 	}
 	return piecesPos;
@@ -185,9 +187,9 @@ Position ChessBoard::getKingPos(bool color) const
 {
 	for (int i = 0; i < BOARD_SIZE; ++i) {
 		for (int j = 0; j < BOARD_SIZE; ++j) {
-			if (!isEmpty({i, j}) && typeid(*m_board[i][j]) == typeid(King) &&
+			if (!isEmpty({ i, j }) && typeid(*m_board[i][j]) == typeid(King) &&
 				m_board[i][j]->getColor() == color)
-				return {i, j};
+				return { i, j };
 		}
 	}
 }
