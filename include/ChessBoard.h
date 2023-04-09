@@ -23,7 +23,7 @@ private:
 	bool isEmpty(const Position& pos) const;
     bool isPieceOfOpponent(const Position& pos) const;
 	bool isPieceOfCurPlayer(const Position& pos) const;
-	bool isLegalMove(const Position& source, const Position& dest) const;
+	bool isLegalMove(const Position& source, const Position& dest, bool cur = false) const;
 	bool isPathBlocked(const Position& source, const Position& dest) const;
 	bool isMoveCausedCheck(bool onCurPlayer) const;
 	int movePiece(const Position& source, const Position& dest);
@@ -33,6 +33,6 @@ private:
 	
 	vector<vector<unique_ptr<GamePiece>>> m_board;
 	
-	bool m_turn = WHITE;
+	bool mutable m_turn = WHITE;
 
 };

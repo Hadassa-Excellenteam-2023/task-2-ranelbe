@@ -82,10 +82,10 @@ bool ChessBoard::isPieceOfCurPlayer(const Position& pos) const
 * @param dest - the destination position
 * @return true if the movement is legal
 */
-bool ChessBoard::isLegalMove(const Position& source, const Position& dest) const
+bool ChessBoard::isLegalMove(const Position& source, const Position& dest, bool cur) const
 {
-	return m_board[source.x][source.y]->isLegalMove(
-		source, dest, isPieceOfOpponent(dest)) &&
+	return m_board[source.x][source.y]->isLegalMove(source, dest, 
+		cur ? isPieceOfCurPlayer(dest) : isPieceOfOpponent(dest)) &&
 		!isPathBlocked(source, dest);
 }
 
@@ -135,8 +135,9 @@ bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 
 	// check if the king is in check
 	for (auto& pos : piecesPos) {
-		if (isLegalMove(pos, kingPos))
+		if (isLegalMove(pos, kingPos, onCurPlayer)) {
 			return true;
+		}
 	}
 	return false;
 }
@@ -149,13 +150,10 @@ bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 */
 int ChessBoard::movePiece(const Position& source, const Position& dest)
 {
-	// save the destination piece pointer
 	unique_ptr<GamePiece> destPtr = move(m_board[dest.x][dest.y]);
-	
 	// move the piece
 	m_board[dest.x][dest.y] = move(m_board[source.x][source.y]);
 	m_board[source.x][source.y] = nullptr;
-
 	if (isMoveCausedCheck(ON_CUR_PLAYER)) { 
 		// undo the move
 		m_board[source.x][source.y] = move(m_board[dest.x][dest.y]);
@@ -170,10 +168,6 @@ int ChessBoard::movePiece(const Position& source, const Position& dest)
 	m_turn = !m_turn;
 	return 42;
 }
-
-//*************************************************************************
-// I DONT LIKE THIS IMPLEMENTATION
-//TODO: ADD MEMBERS TO STORE THE POSITIONS INSTEAD
 
 vector<Position> ChessBoard::getPiecesPos(bool color) const
 {
