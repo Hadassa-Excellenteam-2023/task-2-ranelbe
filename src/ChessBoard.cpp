@@ -22,7 +22,10 @@ void ChessBoard::initBoard(const string& start)
 		vector<unique_ptr<GamePiece>> row;
 		for (int j = 0; j < BOARD_SIZE; ++j) {
 			int ind = i * BOARD_SIZE + j;
-			row.emplace_back(Factory<GamePiece>::create(start[ind]));
+			auto piece = Factory<GamePiece>::create(start[ind]);
+			if (piece && typeid(*piece) == typeid(King))
+				setKingPos(piece->getColor(), { i,j });
+			row.push_back(move(piece));
 		}
 		m_board.push_back(move(row));
 	}
@@ -126,8 +129,8 @@ bool ChessBoard::isPathBlocked(const Position& source, const Position& dest) con
 bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 {
 	Position kingPos = onCurPlayer ?
-		(m_turn ? getKingPos(WHITE) : getKingPos(BLACK)) :
-		(m_turn ? getKingPos(BLACK) : getKingPos(WHITE));
+		(m_turn ? m_whiteKingPos : m_blackKingPos) :
+		(m_turn ? m_blackKingPos : m_whiteKingPos);
 
 	vector<Position> piecesPos = onCurPlayer ?
 		(m_turn ? getPiecesPos(BLACK) : getPiecesPos(WHITE)) :
@@ -149,20 +152,23 @@ bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 */
 int ChessBoard::movePiece(const Position& source, const Position& dest)
 {
-	// save the destination piece pointer
-	unique_ptr<GamePiece> destPtr = move(m_board[dest.x][dest.y]);
-	
+	//save the destination piece ptr
+	unique_ptr<GamePiece> destPtr = move(m_board[dest.x][dest.y]); 
 	// move the piece
 	m_board[dest.x][dest.y] = move(m_board[source.x][source.y]);
 	m_board[source.x][source.y] = nullptr;
+	if (typeid(*m_board[dest.x][dest.y]) == typeid(King))
+		setKingPos(m_board[dest.x][dest.y]->getColor(), dest);
 
 	if (isMoveCausedCheck(ON_CUR_PLAYER)) { 
 		// undo the move
 		m_board[source.x][source.y] = move(m_board[dest.x][dest.y]);
 		m_board[dest.x][dest.y] = move(destPtr);
+		if (typeid(*m_board[source.x][source.y]) == typeid(King))
+			setKingPos(m_board[source.x][source.y]->getColor(), source);
 		return 31;
 	}
-	// move was legal
+	// move is legal
 	if (isMoveCausedCheck(ON_OPPONENT)) {
 		m_turn = !m_turn; // change the turn
 		return 41;
@@ -171,10 +177,11 @@ int ChessBoard::movePiece(const Position& source, const Position& dest)
 	return 42;
 }
 
-//*************************************************************************
-// I DONT LIKE THIS IMPLEMENTATION
-//TODO: ADD MEMBERS TO STORE THE POSITIONS INSTEAD
-
+/*
+* get vector of all the positions of the pieces with the given color
+* @param color - the color of the pieces
+* @return vector of all the positions of the pieces with the given color
+*/
 vector<Position> ChessBoard::getPiecesPos(bool color) const
 {
 	vector<Position> piecesPos;
@@ -187,13 +194,13 @@ vector<Position> ChessBoard::getPiecesPos(bool color) const
 	return piecesPos;
 }
 
-Position ChessBoard::getKingPos(bool color) const
+/*
+* set the position of the king
+* @param color - the color of the king
+* @param newPos - the new position of the king
+*/
+void ChessBoard::setKingPos(bool color, const Position& newPos)
 {
-	for (int i = 0; i < BOARD_SIZE; ++i) {
-		for (int j = 0; j < BOARD_SIZE; ++j) {
-			if (!isEmpty({i, j}) && typeid(*m_board[i][j]) == typeid(King) &&
-				m_board[i][j]->getColor() == color)
-				return {i, j};
-		}
-	}
+	color == WHITE ? m_whiteKingPos = newPos : m_blackKingPos = newPos;
 }
+

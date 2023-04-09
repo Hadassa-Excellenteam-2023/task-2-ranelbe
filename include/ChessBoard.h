@@ -27,12 +27,13 @@ private:
 	bool isPathBlocked(const Position& source, const Position& dest) const;
 	bool isMoveCausedCheck(bool onCurPlayer) const;
 	int movePiece(const Position& source, const Position& dest);
-
+	
 	vector<Position> getPiecesPos(bool color) const;
-	Position getKingPos(bool color) const;
+	void setKingPos(bool color, const Position& newPos);
 	
 	vector<vector<unique_ptr<GamePiece>>> m_board;
-	
+	Position m_whiteKingPos;
+	Position m_blackKingPos;
 	bool m_turn = WHITE;
 
 };
