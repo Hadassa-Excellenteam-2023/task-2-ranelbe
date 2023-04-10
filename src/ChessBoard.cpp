@@ -82,10 +82,10 @@ bool ChessBoard::isPieceOfCurPlayer(const Position& pos) const
 * @param dest - the destination position
 * @return true if the movement is legal
 */
-bool ChessBoard::isLegalMove(const Position& source, const Position& dest, bool cur) const
+bool ChessBoard::isLegalMove(const Position& source, const Position& dest) const
 {
-	return m_board[source.x][source.y]->isLegalMove(source, dest, 
-		cur ? isPieceOfCurPlayer(dest) : isPieceOfOpponent(dest)) &&
+	return m_board[source.x][source.y]->isLegalMove(
+		source, dest, isDifferentColor(source, dest)) &&
 		!isPathBlocked(source, dest);
 }
 
@@ -135,10 +135,22 @@ bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 
 	// check if the king is in check
 	for (auto& pos : piecesPos) {
-		if (isLegalMove(pos, kingPos, onCurPlayer))
+		if (isLegalMove(pos, kingPos))
 			return true;
 	}
 	return false;
+}
+
+/*
+* check if source and destination are different colors
+* @param source - the source position
+* @param dest - the destination position
+* @return true if source and destination are different colors
+*/
+bool ChessBoard::isDifferentColor(const Position& source, const Position& dest) const
+{
+	return !isEmpty(source) && !isEmpty(dest) && 
+		m_board[source.x][source.y]->getColor() != m_board[dest.x][dest.y]->getColor();
 }
 
 /*
@@ -149,9 +161,7 @@ bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 */
 int ChessBoard::movePiece(const Position& source, const Position& dest)
 {
-	// save the destination piece pointer
 	unique_ptr<GamePiece> destPtr = move(m_board[dest.x][dest.y]);
-
 	// move the piece
 	m_board[dest.x][dest.y] = move(m_board[source.x][source.y]);
 	m_board[source.x][source.y] = nullptr;
