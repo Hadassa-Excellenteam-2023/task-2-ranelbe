@@ -1,10 +1,12 @@
 #pragma once
 #include "GamePieces/GamePiece.h"
 #include <vector>
+#include <array>
 #include <memory>
 #include <string>
 
 using std::string;
+using std::array;
 using std::vector;
 using std::unique_ptr;
 using std::move;
@@ -27,11 +29,15 @@ private:
 	bool isPathBlocked(const Position& source, const Position& dest) const;
 	bool isMoveCausedCheck(bool onCurPlayer) const;
 	bool isDifferentColor(const Position& source, const Position& dest) const;
-	int movePiece(const Position& source, const Position& dest);
 	vector<Position> getPiecesPos(bool color) const;
-	Position getKingPos(bool color) const;
+	void setKingPos(bool color, const Position& newPos);
+	int movePiece(const Position& source, const Position& dest);
 
-	vector<vector<unique_ptr<GamePiece>>> m_board;
+	using GamePieceRow = array<unique_ptr<GamePiece>, BOARD_SIZE>;
+	array<GamePieceRow, BOARD_SIZE> m_board;
+
+	Position m_whiteKingPos;
+	Position m_blackKingPos;
 	bool m_turn = WHITE;
 
 };

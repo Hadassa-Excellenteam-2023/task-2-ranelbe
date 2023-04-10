@@ -12,32 +12,28 @@ class Factory {
 
 public:
 	//the pointer to the function that creates the object
-	using pFnc = unique_ptr<T>(*)(); 
-	static bool registerit(const char& name, pFnc);
-	static unique_ptr<T> create(const char& name);
+	using creationFunc = unique_ptr<T>(*)();
+
+	//register a pair of char+creator function into the map:
+	static bool registerit(const char& name, creationFunc f) {
+		getMap().emplace(name, f);
+		return true;
+	}
+
+	//creates the objects according to the char that represents it
+	//(searches this char in the map):
+	static unique_ptr<T> create(const char& name) {
+		const auto& map = getMap();
+		auto it = map.find(name);
+		if (it == map.end())
+			return nullptr;
+		return it->second();
+	}
 
 private:
 	static auto& getMap() {
-		static map<char, pFnc> map;
+		static map<char, creationFunc> map;
 		return map;
 	}
-
 };
-
-//register a pair of char+creator function into the map:
-template<typename T>
-bool Factory<T>::registerit(const char& name, pFnc f) {
-	Factory::getMap().emplace(name, f);
-	return true;
-}
-
-//creates the objects according to the char that represents it
-//(searches this char in the map):
-template<typename T>
-unique_ptr<T> Factory<T>::create(const char& name) {
-	auto it = Factory::getMap().find(name);
-	if (it == Factory::getMap().end())
-		return nullptr;
-	return it->second();
-}
 

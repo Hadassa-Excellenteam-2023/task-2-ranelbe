@@ -2,6 +2,8 @@
 #include "Factory.h"
 #include "ChessBoard.h"
 
+bool Pawn::m_registerit = GamePiece::registerPiece<Pawn>('P', 'p');
+
 Pawn::Pawn(bool isWhite) :
     GamePiece(isWhite)
 {
@@ -27,19 +29,3 @@ bool Pawn::isLegalMove(const Position& source, const Position& dest, bool Oppone
 
 	return false;
 }
-
-// white pawn registration
-bool Pawn::m_registerit_white =
-Factory<GamePiece>::registerit
-(
-    'P', []()->std::unique_ptr<GamePiece>
-    { return std::make_unique<Pawn>(WHITE); }
-);
-
-// black pawn registration
-bool Pawn::m_registerit_black =
-Factory<GamePiece>::registerit
-(
-    'p', []()->std::unique_ptr<GamePiece>
-    { return std::make_unique<Pawn>(BLACK); }
-);

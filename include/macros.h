@@ -1,6 +1,7 @@
 #pragma once
+#include <Factory.h>
 
-const int BOARD_SIZE = 8;
+constexpr int BOARD_SIZE = 8;
 
 struct Direction {
 	int x;
@@ -36,6 +37,16 @@ struct Position {
 		*this = *this + dir;
 		return *this;
 	}
+};
+
+enum MoveError {
+	SRC_EMPTY = 11,
+	SRC_OPPONENT = 12,
+	DEST_CUR_PLAYER = 13,
+	ILLEGAL_PIECE_MOVE = 21,
+	CHECK_ON_CUR_PLAYER = 31,
+	CHECK_ON_OPPONENT = 41,
+	LEAGAL_MOVE = 42,
 };
 
 const bool WHITE = true;

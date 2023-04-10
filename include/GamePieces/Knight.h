@@ -9,7 +9,5 @@ public:
 	bool isLegalMove(const Position& source, const Position& dest, bool OpponentDest) const override;
 
 private:
-	static bool m_registerit_white;
-	static bool m_registerit_black;
-
+	static bool m_registerit;
 };

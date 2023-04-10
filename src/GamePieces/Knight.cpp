@@ -1,6 +1,7 @@
 #include "GamePieces/Knight.h"
 #include "Factory.h"
 
+bool Knight::m_registerit = GamePiece::registerPiece<Knight>('N', 'n');
 
 Knight::Knight(bool isWhite) :
     GamePiece(isWhite)
@@ -13,19 +14,3 @@ bool Knight::isLegalMove(const Position& source, const Position& dest, bool /*Op
 	return (abs(dest.x - source.x) == 2 && abs(dest.y - source.y) == 1) ||
         (abs(dest.x - source.x) == 1 && abs(dest.y - source.y) == 2);
 }
-
-// white knight registration
-bool Knight::m_registerit_white =
-Factory<GamePiece>::registerit
-(
-    'N', []()->std::unique_ptr<GamePiece>
-    { return std::make_unique<Knight>(WHITE); }
-);
-
-// black knight registration
-bool Knight::m_registerit_black =
-Factory<GamePiece>::registerit
-(
-    'n', []()->std::unique_ptr<GamePiece>
-    { return std::make_unique<Knight>(BLACK); }
-);

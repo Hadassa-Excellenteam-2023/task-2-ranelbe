@@ -19,12 +19,15 @@ ChessBoard::ChessBoard(const string& start)
 void ChessBoard::initBoard(const string& start)
 {
 	for (int i = 0; i < BOARD_SIZE; ++i) {
-		vector<unique_ptr<GamePiece>> row;
+		GamePieceRow row;
 		for (int j = 0; j < BOARD_SIZE; ++j) {
 			int ind = i * BOARD_SIZE + j;
-			row.emplace_back(Factory<GamePiece>::create(start[ind]));
+			auto piece = Factory<GamePiece>::create(start[ind]);
+			if (piece && typeid(*piece) == typeid(King))
+				setKingPos(piece->getColor(), { i,j });
+			row[j] = move(piece);
 		}
-		m_board.push_back(move(row));
+		m_board[i] = move(row);
 	}
 }
 
@@ -39,10 +42,10 @@ int ChessBoard::execute(const string& res)
 	Position source = { tolower(res[0]) - 'a', tolower(res[1]) - '1' };
 	Position dest = { tolower(res[2]) - 'a', tolower(res[3]) - '1' };
 
-	if (isEmpty(source)) return 11;
-	else if (isPieceOfOpponent(source)) return 12;
-	else if (isPieceOfCurPlayer(dest)) return 13;
-	else if (!isLegalMove(source, dest)) return 21;
+	if (isEmpty(source)) return SRC_EMPTY;
+	else if (isPieceOfOpponent(source)) return SRC_OPPONENT;
+	else if (isPieceOfCurPlayer(dest)) return DEST_CUR_PLAYER;
+	else if (!isLegalMove(source, dest)) return ILLEGAL_PIECE_MOVE;
 	return movePiece(source, dest);
 }
 
@@ -126,8 +129,8 @@ bool ChessBoard::isPathBlocked(const Position& source, const Position& dest) con
 bool ChessBoard::isMoveCausedCheck(bool onCurPlayer) const
 {
 	Position kingPos = onCurPlayer ?
-		(m_turn ? getKingPos(WHITE) : getKingPos(BLACK)) :
-		(m_turn ? getKingPos(BLACK) : getKingPos(WHITE));
+		(m_turn ? m_whiteKingPos : m_blackKingPos) :
+		(m_turn ? m_blackKingPos : m_whiteKingPos);
 
 	vector<Position> piecesPos = onCurPlayer ?
 		(m_turn ? getPiecesPos(BLACK) : getPiecesPos(WHITE)) :
@@ -154,6 +157,33 @@ bool ChessBoard::isDifferentColor(const Position& source, const Position& dest) 
 }
 
 /*
+* get vector of all the pieces with the given color
+* @param color - the color of the pieces
+* @return vector of all the pieces with the given color
+*/
+vector<Position> ChessBoard::getPiecesPos(bool color) const
+{
+	vector<Position> piecesPos;
+	for (int i = 0; i < BOARD_SIZE; ++i) {
+		for (int j = 0; j < BOARD_SIZE; ++j) {
+			if (m_board[i][j] && m_board[i][j]->getColor() == color)
+				piecesPos.push_back({ i, j });
+		}
+	}
+	return piecesPos;
+}
+
+/*
+* set the position of the king
+* @param color - the color of the king
+* @param newPos - the new position of the king
+*/
+void ChessBoard::setKingPos(bool color, const Position& newPos)
+{
+	color == WHITE ? m_whiteKingPos = newPos : m_blackKingPos = newPos;
+}
+
+/*
 * move the piece from the source to the destination if no check is caused
 * @param source - the source position
 * @param dest - the destination position
@@ -165,41 +195,22 @@ int ChessBoard::movePiece(const Position& source, const Position& dest)
 	// move the piece
 	m_board[dest.x][dest.y] = move(m_board[source.x][source.y]);
 	m_board[source.x][source.y] = nullptr;
+	if (typeid(*m_board[dest.x][dest.y]) == typeid(King))
+		setKingPos(m_board[dest.x][dest.y]->getColor(), dest);
 
 	if (isMoveCausedCheck(ON_CUR_PLAYER)) {
 		// undo the move
 		m_board[source.x][source.y] = move(m_board[dest.x][dest.y]);
 		m_board[dest.x][dest.y] = move(destPtr);
-		return 31;
+		if (typeid(*m_board[source.x][source.y]) == typeid(King))
+			setKingPos(m_board[source.x][source.y]->getColor(), source);
+		return CHECK_ON_CUR_PLAYER;
 	}
 	// move was legal
 	if (isMoveCausedCheck(ON_OPPONENT)) {
 		m_turn = !m_turn; // change the turn
-		return 41;
+		return CHECK_ON_OPPONENT;
 	}
 	m_turn = !m_turn;
-	return 42;
-}
-
-vector<Position> ChessBoard::getPiecesPos(bool color) const
-{
-	vector<Position> piecesPos;
-	for (int i = 0; i < BOARD_SIZE; ++i) {
-		for (int j = 0; j < BOARD_SIZE; ++j) {
-			if (!isEmpty({ i, j }) && m_board[i][j]->getColor() == color)
-				piecesPos.push_back({ i, j });
-		}
-	}
-	return piecesPos;
-}
-
-Position ChessBoard::getKingPos(bool color) const
-{
-	for (int i = 0; i < BOARD_SIZE; ++i) {
-		for (int j = 0; j < BOARD_SIZE; ++j) {
-			if (!isEmpty({ i, j }) && typeid(*m_board[i][j]) == typeid(King) &&
-				m_board[i][j]->getColor() == color)
-				return { i, j };
-		}
-	}
+	return LEAGAL_MOVE;
 }
